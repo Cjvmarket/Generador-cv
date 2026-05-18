@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de CV Profesional · CJV Market</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f1f3d;
+  --navy2: #1a3260;
+  --gold: #c9973a;
+  --gold2: #e8b84b;
+  --cream: #f8f5ef;
+  --white: #ffffff;
+  --gray: #6b7280;
+  --light: #f0ece4;
+  --success: #0f6e3f;
+  --danger: #9b1c1c;
+  --radius: 14px;
+  --shadow: 0 4px 24px rgba(15,31,61,0.10);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  min-height: 100vh;
+  color: var(--navy);
+}
+
+/* ===== ACCESO ===== */
+#screen-access {
+  min-height: 100vh;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#screen-access::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,151,58,0.15);
+  top: -200px; right: -200px;
+}
+#screen-access::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,151,58,0.1);
+  bottom: -150px; left: -150px;
+}
+
+.access-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 52px 44px;
+  width: 92%;
+  max-width: 440px;
+  text-align: center;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 1;
+  animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(24px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px; height: 64px;
+  background: var(--navy);
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.brand-mark svg { width: 32px; height: 32px; }
+
+.access-card h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--navy);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.access-card .sub {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+.brand-tag {
+  display: inline-block;
+  background: var(--navy);
+  color: var(--gold2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.code-input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e5e0d8;
+  border-radius: var(--radius);
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 4px;
+  color: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+  background: var(--cream);
+}
+
+.code-input:focus {
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(201,151,58,0.12);
+}
+
+.code-input.error {
+  border-color: #e53e3e;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+
+.btn-access {
+  width: 100%;
+  padding: 16px;
+  background: var(--navy);
+  color: var(--gold2);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  margin-top: 14px;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.btn-access:hover { background: var(--navy2); transform: translateY(-1px); }
+.btn-access:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.error-msg {
+  color: var(--danger);
+  font-size: 13px;
+  margin-top: 12px;
+  display: none;
+  font-weight: 500;
+}
+
+.loading-msg {
+  color: var(--gray);
+  font-size: 13px;
+  margin-top: 12px;
+  display: none;
+}
+
+/* ===== APP ===== */
+#screen-app { display: none; min-height: 100vh; }
+
+.app-header {
+  background: var(--navy);
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header .logo {
+  font-family: 'DM Serif Display', serif;
+  color: var(--gold2);
+  font-size: 18px;
+}
+
+.app-header .logo span {
+  color: rgba(255,255,255,0.5);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 12px;
+}
+
+.step-counter {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* PROGRESS */
+.progress-wrap {
+  background: var(--white);
+  padding: 20px 32px;
+  border-bottom: 1px solid #e8e2d8;
+  overflow-x: auto;
+}
+
+.steps-row {
+  display: flex;
+  align-items: center;
+  min-width: 560px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.step-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #e8e2d8;
+  color: #aaa;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+
+.step-dot.active { background: var(--navy); color: var(--gold2); }
+.step-dot.done { background: var(--success); color: white; font-size: 14px; }
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: #e8e2d8;
+  margin: 0 4px;
+  transition: background 0.3s;
+}
+.step-line.done { background: var(--success); }
+
+.step-label-row {
+  display: flex;
+  min-width: 560px;
+  margin-top: 6px;
+}
+
+.step-label-item {
+  flex: 1;
+  text-align: center;
+  font-size: 10px;
+  color: #aaa;
+  font-weight: 500;
+  padding: 0 2px;
+}
+.step-label-item.active { color: var(--navy); font-weight: 600; }
+.step-label-item.done { color: var(--success); }
+
+/* CONTENT */
+.content-wrap {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.card-sub {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* FORM */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fg { display: flex; flex-direction: column; gap: 6px; }
+.fg.full { grid-column: 1 / -1; }
+
+label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input[type=text], input[type=email], input[type=tel], textarea, select {
+  padding: 12px 14px;
+  border: 1.5px solid #e8e2d8;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+  background: var(--cream);
+  resize: vertical;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(201,151,58,0.1);
+}
+
+/* FOTO */
+.photo-zone {
+  border: 2px dashed #d4ccbf;
+  border-radius: 16px;
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--cream);
+}
+
+.photo-zone:hover { border-color: var(--gold); background: #fdf8f0; }
+
+.photo-preview {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--gold);
+  margin: 0 auto 14px;
+  display: none;
+}
+
+.photo-icon { font-size: 40px; margin-bottom: 12px; }
+.photo-zone p { font-size: 13px; color: var(--gray); }
+.photo-zone strong { color: var(--navy); display: block; margin-bottom: 4px; }
+
+.tips-box {
+  background: #fdf8f0;
+  border: 1.5px solid #e8d5a8;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 20px;
+}
+.tips-box h4 { font-size: 13px; font-weight: 600; color: var(--gold); margin-bottom: 10px; }
+.tips-box ul { list-style: none; }
+.tips-box li { font-size: 12px; color: #7a6a4a; padding: 3px 0 3px 18px; position: relative; line-height: 1.5; }
+.tips-box li::before { content: '✓'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
+
+/* ITEMS DINAMICOS */
+.item-block {
+  background: var(--cream);
+  border: 1.5px solid #e8e2d8;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.btn-add {
+  width: 100%;
+  padding: 13px;
+  background: none;
+  border: 2px dashed #c9973a;
+  color: var(--gold);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.btn-add:hover { background: #fdf8f0; }
+
+.btn-remove {
+  background: #fde8e8;
+  color: #9b1c1c;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+}
+
+/* CHIPS */
+.chip-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.chip-row input { flex: 1; }
+.btn-chip {
+  background: var(--navy);
+  color: var(--gold2);
+  border: none;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  background: #e8f0fe;
+  color: var(--navy2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--navy2);
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+}
+
+/* PLANTILLAS */
+.tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.tpl-card {
+  border: 2.5px solid #e8e2d8;
+  border-radius: 16px;
+  padding: 22px 18px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.tpl-card:hover { border-color: var(--gold); }
+.tpl-card.sel { border-color: var(--navy); background: #f0f4ff; }
+.tpl-icon { font-size: 42px; margin-bottom: 12px; }
+.tpl-name { font-weight: 600; font-size: 15px; color: var(--navy); margin-bottom: 6px; }
+.tpl-desc { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+/* NAVEGACION */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+}
+
+.btn-back {
+  padding: 13px 26px;
+  background: var(--light);
+  color: var(--navy);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.btn-back:hover { background: #e0d8cc; }
+
+.btn-next {
+  padding: 13px 32px;
+  background: var(--navy);
+  color: var(--gold2);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.btn-next:hover { background: var(--navy2); transform: translateY(-1px); }
+
+/* PANTALLA FINAL */
+.done-wrap {
+  text-align: center;
+  padding: 48px 24px;
+}
+.done-icon { font-size: 72px; margin-bottom: 24px; animation: bounce 1s ease; }
+@keyframes bounce {
+  0%,100%{transform:scale(1)} 50%{transform:scale(1.2)}
+}
+.done-wrap h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.done-wrap p { color: var(--gray); font-size: 15px; margin-bottom: 36px; line-height: 1.6; }
+
+.dl-buttons { display: flex; flex-direction: column; gap: 14px; max-width: 380px; margin: 0 auto 36px; }
+.btn-dl {
+  padding: 18px 28px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.btn-dl:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+.btn-dl.visual { background: var(--navy); color: var(--gold2); }
+.btn-dl.ats { background: var(--success); color: white; }
+
+/* INFO BOX */
+.info-box {
+  background: #fdf8f0;
+  border: 1.5px solid #e8d5a8;
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-top: 16px;
+  text-align: left;
+}
+.info-box h4 { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 10px; }
+.info-item {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--gold);
+}
+.info-item h5 { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.info-item p { font-size: 12px; color: #7a6a4a; line-height: 1.5; }
+
+.hidden { display: none !important; }
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .tpl-grid { grid-template-columns: 1fr; }
+  .card { padding: 24px 18px; }
+  .app-header { padding: 14px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA ACCESO -->
+<div id="screen-access">
+  <div class="access-card">
+    <div class="brand-mark">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="2" width="18" height="24" rx="3" fill="#c9973a" opacity="0.2"/>
+        <rect x="4" y="2" width="18" height="24" rx="3" stroke="#c9973a" stroke-width="1.5"/>
+        <line x1="8" y1="9" x2="18" y2="9" stroke="#c9973a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="8" y1="13" x2="18" y2="13" stroke="#c9973a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="8" y1="17" x2="14" y2="17" stroke="#c9973a" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="6" fill="#0f1f3d" stroke="#c9973a" stroke-width="1.5"/>
+        <line x1="24" y1="21" x2="24" y2="27" stroke="#c9973a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="21" y1="24" x2="27" y2="24" stroke="#c9973a" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="brand-tag">CJV Market</div>
+    <h1>Generador de CV Profesional</h1>
+    <p class="sub">Ingresá tu código de acceso personal para comenzar a crear tu Currículum Vitae</p>
+    <input type="text" id="code-input" class="code-input" placeholder="CV-0000" maxlength="10" autocomplete="off">
+    <button class="btn-access" id="btn-ingresar" onclick="verificarCodigo()">Ingresar →</button>
+    <p class="loading-msg" id="loading-msg">⏳ Verificando código...</p>
+    <p class="error-msg" id="error-msg">Código incorrecto o ya utilizado. Verificá con CJV Market.</p>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="screen-app">
+  <div class="app-header">
+    <div class="logo">CJV Market <span>Generador de CV</span></div>
+    <div class="step-counter" id="step-counter">Paso 1 de 7</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="steps-row" id="steps-row"></div>
+    <div class="step-label-row" id="steps-labels"></div>
+  </div>
+
+  <div class="content-wrap">
+
+    <!-- PASO 1: FOTO -->
+    <div id="step-1">
+      <div class="card">
+        <h2 class="card-title">Tu foto profesional</h2>
+        <p class="card-sub">Subí una foto para incluir en tu CV. Es opcional pero muy recomendada — aumenta hasta un 40% las chances de ser contactado.</p>
+        <div class="photo-zone" onclick="document.getElementById('photo-file').click()">
+          <img id="photo-preview" class="photo-preview" src="" alt="Foto">
+          <div id="photo-placeholder">
+            <div class="photo-icon">📷</div>
+            <strong>Hacé clic para subir tu foto</strong>
+            <p>JPG o PNG · Máximo 5MB</p>
+          </div>
+          <input type="file" id="photo-file" accept="image/*" style="display:none" onchange="cargarFoto(this)">
+        </div>
+        <div class="tips-box">
+          <h4>📸 Consejos para una foto profesional</h4>
+          <ul>
+            <li>Fondo blanco, gris claro o azul claro</li>
+            <li>Ropa formal o semi-formal según tu sector</li>
+            <li>Encuadre desde los hombros hacia arriba</li>
+            <li>Buena iluminación natural o de frente</li>
+            <li>Expresión natural con leve sonrisa</li>
+            <li>Alta resolución mínimo 400x400 píxeles</li>
+            <li>Evitá selfies, fotos de vacaciones o recortes grupales</li>
+          </ul>
+        </div>
+      </div>
+      <div class="nav-row">
+        <span></span>
+        <button class="btn-next" onclick="irA(2)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- PASO 2: DATOS PERSONALES -->
+    <div id="step-2" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Datos personales</h2>
+        <p class="card-sub">Completá tu información de contacto. Los campos con * son obligatorios.</p>
+        <div class="form-grid">
+          <div class="fg"><label>Nombre *</label><input type="text" id="nombre" placeholder="Ej: María"></div>
+          <div class="fg"><label>Apellido *</label><input type="text" id="apellido" placeholder="Ej: González"></div>
+          <div class="fg full"><label>Profesión / Cargo objetivo *</label><input type="text" id="profesion" placeholder="Ej: Diseñadora Gráfica · Analista Contable · Vendedor"></div>
+          <div class="fg"><label>Email *</label><input type="email" id="email" placeholder="tu@email.com"></div>
+          <div class="fg"><label>Teléfono</label><input type="tel" id="telefono" placeholder="+54 11 1234-5678"></div>
+          <div class="fg"><label>Ciudad / País</label><input type="text" id="ciudad" placeholder="Buenos Aires, Argentina"></div>
+          <div class="fg"><label>LinkedIn</label><input type="text" id="linkedin" placeholder="linkedin.com/in/tu-perfil"></div>
+          <div class="fg"><label>Portfolio / Sitio web</label><input type="text" id="web" placeholder="miportfolio.com"></div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="irA(1)">← Atrás</button>
+        <button class="btn-next" onclick="irA(3)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- PASO 3: PERFIL -->
+    <div id="step-3" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Perfil profesional</h2>
+        <p class="card-sub">Un resumen poderoso de 3 a 5 oraciones sobre quién sos y qué ofrecés. Es lo primero que lee el reclutador.</p>
+        <div class="fg full">
+          <label>Resumen profesional *</label>
+          <textarea id="perfil" rows="6" placeholder="Ej: Diseñadora gráfica con 5 años de experiencia en branding y comunicación visual para empresas de tecnología y retail. Especializada en identidad corporativa y diseño editorial. Bilingüe español-inglés, disponible para proyectos remotos."></textarea>
+        </div>
+        <div class="tips-box" style="margin-top:20px">
+          <h4>💡 Tips para tu perfil</h4>
+          <ul>
+            <li>Mencioná cuántos años de experiencia tenés</li>
+            <li>Indicá tu especialidad o área principal</li>
+            <li>Agregá un logro o dato concreto si podés</li>
+            <li>Para recién graduados: mencioná tu formación y motivación</li>
+            <li>Evitá frases genéricas como "soy proactivo y dinámico"</li>
+          </ul>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="irA(2)">← Atrás</button>
+        <button class="btn-next" onclick="irA(4)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- PASO 4: EXPERIENCIA -->
+    <div id="step-4" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Experiencia laboral</h2>
+        <p class="card-sub">Agregá tus trabajos del más reciente al más antiguo. Si no tenés experiencia formal podés saltear este paso.</p>
+        <div id="exp-container"></div>
+        <button class="btn-add" onclick="agregarExp()">+ Agregar experiencia</button>
+        <div class="tips-box" style="margin-top:20px">
+          <h4>💡 Tips para tu experiencia</h4>
+          <ul>
+            <li>Usá verbos de acción: Lideré · Desarrollé · Aumenté · Gestioné</li>
+            <li>Cuantificá logros: "Aumenté ventas un 35% en 6 meses"</li>
+            <li>Mencioná herramientas o tecnologías que usaste</li>
+          </ul>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="irA(3)">← Atrás</button>
+        <button class="btn-next" onclick="irA(5)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- PASO 5: EDUCACION -->
+    <div id="step-5" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Educación y formación</h2>
+        <p class="card-sub">Agregá tus estudios formales, cursos, certificaciones y capacitaciones relevantes.</p>
+        <div id="edu-container"></div>
+        <button class="btn-add" onclick="agregarEdu()">+ Agregar educación</button>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="irA(4)">← Atrás</button>
+        <button class="btn-next" onclick="irA(6)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- PASO 6: HABILIDADES -->
+    <div id="step-6" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Habilidades e idiomas</h2>
+        <p class="card-sub">Agregá tus skills técnicas, herramientas, programas y los idiomas que manejás.</p>
+        <div style="margin-bottom:24px">
+          <label style="display:block;margin-bottom:10px">Habilidades y herramientas</label>
+          <div class="chip-row">
+            <input type="text" id="skill-input" placeholder="Ej: Excel avanzado · Photoshop · Atención al cliente..." onkeydown="if(event.key==='Enter')agregarSkill()">
+            <button class="btn-chip" onclick="agregarSkill()">+</button>
+          </div>
+          <div class="chips-wrap" id="chips-wrap"></div>
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:10px">Idiomas</label>
+          <div id="idiomas-container"></div>
+          <button class="btn-add" onclick="agregarIdioma()" style="margin-top:8px">+ Agregar idioma</button>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="irA(5)">← Atrás</button>
+        <button class="btn-next" onclick="irA(7)">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- PASO 7: PLANTILLA -->
+    <div id="step-7" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Elegí tu plantilla</h2>
+        <p class="card-sub">Seleccioná el estilo de CV. Vamos a generar las dos versiones automáticamente.</p>
+        <div class="tpl-grid">
+          <div class="tpl-card sel" id="tpl-visual" onclick="elegirTpl('visual')">
+            <div class="tpl-icon">📋</div>
+            <div class="tpl-name">CV Visual</div>
+            <div class="tpl-desc">Diseño moderno con foto, colores y secciones bien definidas. Ideal para enviar directamente a reclutadores.</div>
+          </div>
+          <div class="tpl-card" id="tpl-ats" onclick="elegirTpl('ats')">
+            <div class="tpl-icon">📃</div>
+            <div class="tpl-name">CV Versión ATS</div>
+            <div class="tpl-desc">Formato optimizado para sistemas automáticos de selección. Sin columnas ni gráficos — cualquier sistema lo lee.</div>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top:20px">
+          <h4>💡 ¿Cuándo usar cada uno?</h4>
+          <div class="info-item">
+            <h5>CV Visual → mandalo directamente</h5>
+            <p>Por email, WhatsApp o cuando el reclutador te pide el CV. También para imprimir.</p>
+          </div>
+          <div class="info-item">
+            <h5>CV ATS → para portales online</h5>
+            <p>Cuando aplicás en LinkedIn, Bumeran, Zonajobs, Computrabajo o el portal de una empresa.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="irA(6)">← Atrás</button>
+        <button class="btn-next" style="background:var(--success);color:white" onclick="generarCVs()">✨ Generar mi CV</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA FINAL -->
+    <div id="step-done" class="hidden">
+      <div class="card done-wrap">
+        <div class="done-icon">🎉</div>
+        <h2>¡Tu CV está listo!</h2>
+        <p>Generamos ambas versiones de tu Currículum. Descargalas y empezá a postularte con confianza.</p>
+        <div class="dl-buttons">
+          <button class="btn-dl visual" onclick="descargarVisual()">📥 Descargar CV Visual (PDF)</button>
+          <button class="btn-dl ats" onclick="descargarATS()">📥 Descargar CV versión ATS (TXT)</button>
+        </div>
+        <div class="info-box">
+          <h4>📚 Guía de uso de tus CVs</h4>
+          <div class="info-item">
+            <h5>Actualizalo cada 3 meses</h5>
+            <p>Agregá nuevas habilidades, cursos y logros para que siempre esté al día.</p>
+          </div>
+          <div class="info-item">
+            <h5>Personalizalo por oferta</h5>
+            <p>Para cada postulación ajustá las palabras clave de tu perfil según lo que pide cada aviso.</p>
+          </div>
+          <div class="info-item">
+            <h5>LinkedIn alineado</h5>
+            <p>Usá el mismo perfil profesional y palabras clave en tu LinkedIn para mayor coherencia.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgRgXqfijtgkMCfaegfOjglTZuP32uVYGQl6SfnUSGZOwSyC6VsRwZ1clpDbFWsqM/exec";
+
+const PASOS = ["Foto","Personal","Perfil","Experiencia","Educación","Habilidades","Plantilla"];
+let pasoActual = 1;
+let fotoData = null;
+let skills = [];
+let plantilla = 'visual';
+let datosCV = {};
+let codigoUsado = '';
+
+// Construir progress bar
+function buildProgress() {
+  const row = document.getElementById('steps-row');
+  const labels = document.getElementById('steps-labels');
+  row.innerHTML = '';
+  labels.innerHTML = '';
+  PASOS.forEach((p, i) => {
+    const n = i + 1;
+    const isDone = n < pasoActual;
+    const isActive = n === pasoActual;
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (isDone ? ' done' : isActive ? ' active' : '');
+    dot.textContent = isDone ? '✓' : n;
+    row.appendChild(dot);
+    if (i < PASOS.length - 1) {
+      const line = document.createElement('div');
+      line.className = 'step-line' + (isDone ? ' done' : '');
+      row.appendChild(line);
+    }
+    const lbl = document.createElement('div');
+    lbl.className = 'step-label-item' + (isDone ? ' done' : isActive ? ' active' : '');
+    lbl.textContent = p;
+    labels.appendChild(lbl);
+  });
+}
+
+// VERIFICAR CODIGO
+async function verificarCodigo() {
+  const codigo = document.getElementById('code-input').value.trim().toUpperCase();
+  if (!codigo) return;
+
+  const btn = document.getElementById('btn-ingresar');
+  const loading = document.getElementById('loading-msg');
+  const errorMsg = document.getElementById('error-msg');
+  const input = document.getElementById('code-input');
+
+  btn.disabled = true;
+  loading.style.display = 'block';
+  errorMsg.style.display = 'none';
+  input.classList.remove('error');
+
+  try {
+    const url = APPS_SCRIPT_URL + '?codigo=' + encodeURIComponent(codigo) + '&accion=verificar';
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (data.resultado === 'OK') {
+      // Marcar como usado
+      const urlMarcar = APPS_SCRIPT_URL + '?codigo=' + encodeURIComponent(codigo) + '&accion=marcar';
+      await fetch(urlMarcar);
+      codigoUsado = codigo;
+      iniciarApp();
+    } else {
+      loading.style.display = 'none';
+      btn.disabled = false;
+      errorMsg.style.display = 'block';
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 500);
+    }
+  } catch (e) {
+    loading.style.display = 'none';
+    btn.disabled = false;
+    errorMsg.textContent = 'Error de conexión. Verificá tu internet e intentá de nuevo.';
+    errorMsg.style.display = 'block';
+  }
+}
+
+document.getElementById('code-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') verificarCodigo();
+});
+
+function iniciarApp() {
+  document.getElementById('screen-access').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'block';
+  buildProgress();
+  agregarExp();
+  agregarEdu();
+  agregarIdioma();
+}
+
+// NAVEGACION
+function irA(n) {
+  document.getElementById('step-' + pasoActual).classList.add('hidden');
+  pasoActual = n;
+  document.getElementById('step-' + pasoActual).classList.remove('hidden');
+  document.getElementById('step-counter').textContent = 'Paso ' + n + ' de 7';
+  buildProgress();
+  window.scrollTo(0, 0);
+}
+
+// FOTO
+function cargarFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fotoData = e.target.result;
+    const prev = document.getElementById('photo-preview');
+    prev.src = fotoData;
+    prev.style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// EXPERIENCIA
+function agregarExp() {
+  const c = document.getElementById('exp-container');
+  const d = document.createElement('div');
+  d.className = 'item-block';
+  d.innerHTML = `
+    <div class="form-grid">
+      <div class="fg"><label>Cargo / Puesto</label><input type="text" class="exp-cargo" placeholder="Ej: Analista de Ventas"></div>
+      <div class="fg"><label>Empresa</label><input type="text" class="exp-empresa" placeholder="Ej: Empresa S.A."></div>
+      <div class="fg"><label>Desde</label><input type="text" class="exp-desde" placeholder="Ej: Marzo 2021"></div>
+      <div class="fg"><label>Hasta</label><input type="text" class="exp-hasta" placeholder="Ej: Diciembre 2023 · Actualidad"></div>
+      <div class="fg full"><label>Tareas y logros</label><textarea class="exp-desc" rows="3" placeholder="Ej: Gestioné cartera de 80 clientes. Aumenté ventas un 30% en 6 meses. Coordiné equipo de 4 personas."></textarea></div>
+    </div>
+    <button class="btn-remove" onclick="this.parentElement.remove()">✕ Eliminar</button>`;
+  c.appendChild(d);
+}
+
+// EDUCACION
+function agregarEdu() {
+  const c = document.getElementById('edu-container');
+  const d = document.createElement('div');
+  d.className = 'item-block';
+  d.innerHTML = `
+    <div class="form-grid">
+      <div class="fg"><label>Título / Curso</label><input type="text" class="edu-titulo" placeholder="Ej: Lic. en Administración"></div>
+      <div class="fg"><label>Institución</label><input type="text" class="edu-inst" placeholder="Ej: UBA · Coderhouse · UTN"></div>
+      <div class="fg"><label>Desde</label><input type="text" class="edu-desde" placeholder="Ej: 2018"></div>
+      <div class="fg"><label>Hasta / Estado</label><input type="text" class="edu-hasta" placeholder="Ej: 2022 · En curso"></div>
+    </div>
+    <button class="btn-remove" onclick="this.parentElement.remove()">✕ Eliminar</button>`;
+  c.appendChild(d);
+}
+
+// IDIOMAS
+function agregarIdioma() {
+  const c = document.getElementById('idiomas-container');
+  const d = document.createElement('div');
+  d.className = 'item-block';
+  d.style.marginBottom = '10px';
+  d.innerHTML = `
+    <div class="form-grid">
+      <div class="fg"><label>Idioma</label><input type="text" class="idm-nombre" placeholder="Ej: Inglés"></div>
+      <div class="fg"><label>Nivel</label>
+        <select class="idm-nivel">
+          <option>Básico (A1-A2)</option>
+          <option>Intermedio (B1-B2)</option>
+          <option>Avanzado (C1-C2)</option>
+          <option>Nativo / Bilingüe</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-remove" onclick="this.parentElement.remove()">✕ Eliminar</button>`;
+  c.appendChild(d);
+}
+
+// SKILLS
+function agregarSkill() {
+  const input = document.getElementById('skill-input');
+  const val = input.value.trim();
+  if (!val) return;
+  skills.push(val);
+  renderChips();
+  input.value = '';
+  input.focus();
+}
+
+function renderChips() {
+  document.getElementById('chips-wrap').innerHTML = skills.map((s, i) =>
+    `<div class="chip">${s}<button onclick="quitarSkill(${i})">×</button></div>`
+  ).join('');
+}
+
+function quitarSkill(i) { skills.splice(i, 1); renderChips(); }
+
+// PLANTILLA
+function elegirTpl(t) {
+  plantilla = t;
+  document.getElementById('tpl-visual').classList.toggle('sel', t === 'visual');
+  document.getElementById('tpl-ats').classList.toggle('sel', t === 'ats');
+}
+
+// RECOLECTAR DATOS
+function recolectar() {
+  const exps = [...document.querySelectorAll('#exp-container .item-block')].map(el => ({
+    cargo: el.querySelector('.exp-cargo').value,
+    empresa: el.querySelector('.exp-empresa').value,
+    desde: el.querySelector('.exp-desde').value,
+    hasta: el.querySelector('.exp-hasta').value,
+    desc: el.querySelector('.exp-desc').value
+  })).filter(e => e.cargo);
+
+  const edus = [...document.querySelectorAll('#edu-container .item-block')].map(el => ({
+    titulo: el.querySelector('.edu-titulo').value,
+    inst: el.querySelector('.edu-inst').value,
+    desde: el.querySelector('.edu-desde').value,
+    hasta: el.querySelector('.edu-hasta').value
+  })).filter(e => e.titulo);
+
+  const idiomas = [...document.querySelectorAll('#idiomas-container .item-block')].map(el => ({
+    nombre: el.querySelector('.idm-nombre').value,
+    nivel: el.querySelector('.idm-nivel').value
+  })).filter(e => e.nombre);
+
+  return {
+    nombre: document.getElementById('nombre').value,
+    apellido: document.getElementById('apellido').value,
+    profesion: document.getElementById('profesion').value,
+    email: document.getElementById('email').value,
+    telefono: document.getElementById('telefono').value,
+    ciudad: document.getElementById('ciudad').value,
+    linkedin: document.getElementById('linkedin').value,
+    web: document.getElementById('web').value,
+    perfil: document.getElementById('perfil').value,
+    experiencias: exps,
+    educacion: edus,
+    skills: skills,
+    idiomas: idiomas,
+    foto: fotoData
+  };
+}
+
+function generarCVs() {
+  datosCV = recolectar();
+  document.getElementById('step-7').classList.add('hidden');
+  document.getElementById('step-done').classList.remove('hidden');
+  document.getElementById('step-counter').textContent = '¡Listo!';
+  window.scrollTo(0, 0);
+}
+
+// DESCARGAR CV VISUAL (PDF)
+function descargarVisual() {
+  const d = datosCV;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, H = 297, sW = 70;
+
+  // Sidebar
+  doc.setFillColor(15, 31, 61);
+  doc.rect(0, 0, sW, H, 'F');
+
+  // Foto circular
+  let fotoOffset = 18;
+  if (d.foto) {
+    try {
+      doc.addImage(d.foto, 'JPEG', 11, 12, 48, 48);
+      doc.setDrawColor(201, 151, 58);
+      doc.setLineWidth(1);
+      fotoOffset = 70;
+    } catch(e) {}
+  }
+
+  // Nombre
+  doc.setTextColor(232, 184, 75);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  const nombre = ((d.nombre || '') + ' ' + (d.apellido || '')).toUpperCase();
+  const nombreLines = doc.splitTextToSize(nombre, sW - 12);
+  doc.text(nombreLines, sW / 2, fotoOffset, { align: 'center' });
+
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(160, 185, 220);
+  const profLines = doc.splitTextToSize(d.profesion || '', sW - 12);
+  doc.text(profLines, sW / 2, fotoOffset + nombreLines.length * 5.5, { align: 'center' });
+
+  let sy = fotoOffset + nombreLines.length * 5.5 + profLines.length * 4.5 + 10;
+
+  const seccionSidebar = (titulo) => {
+    doc.setFillColor(45, 74, 122);
+    doc.rect(0, sy, sW, 7, 'F');
+    doc.setTextColor(232, 184, 75);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text(titulo, sW / 2, sy + 5, { align: 'center' });
+    sy += 10;
+  };
+
+  // Contacto
+  seccionSidebar('CONTACTO');
+  const contacts = [
+    d.email && d.email,
+    d.telefono && d.telefono,
+    d.ciudad && d.ciudad,
+    d.linkedin && d.linkedin,
+    d.web && d.web,
+  ].filter(Boolean);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  contacts.forEach(val => {
+    doc.setTextColor(210, 225, 245);
+    const lines = doc.splitTextToSize(val, sW - 12);
+    doc.text(lines, 7, sy);
+    sy += lines.length * 4 + 2;
+  });
+  sy += 4;
+
+  // Habilidades
+  if (d.skills.length > 0) {
+    seccionSidebar('HABILIDADES');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    d.skills.forEach(sk => {
+      doc.setFillColor(201, 151, 58);
+      doc.circle(9, sy - 1, 1, 'F');
+      doc.setTextColor(210, 225, 245);
+      const skLines = doc.splitTextToSize(sk, sW - 16);
+      doc.text(skLines, 13, sy);
+      sy += skLines.length * 4 + 1;
+    });
+    sy += 4;
+  }
+
+  // Idiomas
+  if (d.idiomas.length > 0) {
+    seccionSidebar('IDIOMAS');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    d.idiomas.forEach(idm => {
+      doc.setTextColor(210, 225, 245);
+      doc.text(idm.nombre || '', 7, sy);
+      doc.setTextColor(160, 185, 220);
+      doc.text(idm.nivel || '', 7, sy + 3.5);
+      sy += 10;
+    });
+  }
+
+  // CONTENIDO PRINCIPAL
+  let cy = 18;
+  const cx = sW + 10;
+  const cw = W - sW - 16;
+
+  const seccionMain = (titulo) => {
+    doc.setFillColor(15, 31, 61);
+    doc.rect(cx, cy, cw, 6.5, 'F');
+    doc.setTextColor(232, 184, 75);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(titulo, cx + 4, cy + 4.5);
+    cy += 10;
+  };
+
+  // Perfil
+  if (d.perfil) {
+    seccionMain('PERFIL PROFESIONAL');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(30, 40, 70);
+    const pLines = doc.splitTextToSize(d.perfil, cw);
+    doc.text(pLines, cx, cy);
+    cy += pLines.length * 4 + 8;
+  }
+
+  // Experiencia
+  if (d.experiencias.length > 0) {
+    seccionMain('EXPERIENCIA LABORAL');
+    d.experiencias.forEach(exp => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(15, 31, 61);
+      doc.text(exp.cargo || '', cx, cy);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(201, 151, 58);
+      doc.text(exp.empresa || '', cx, cy + 4.5);
+      doc.setTextColor(120, 130, 150);
+      doc.text((exp.desde || '') + (exp.hasta ? '  —  ' + exp.hasta : ''), cx, cy + 8.5);
+      cy += 13;
+      if (exp.desc) {
+        doc.setTextColor(40, 50, 80);
+        const dLines = doc.splitTextToSize(exp.desc, cw);
+        doc.text(dLines, cx, cy);
+        cy += dLines.length * 4;
+      }
+      cy += 7;
+    });
+  }
+
+  // Educacion
+  if (d.educacion.length > 0) {
+    seccionMain('EDUCACIÓN Y FORMACIÓN');
+    d.educacion.forEach(edu => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(15, 31, 61);
+      doc.text(edu.titulo || '', cx, cy);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(201, 151, 58);
+      doc.text(edu.inst || '', cx, cy + 4.5);
+      doc.setTextColor(120, 130, 150);
+      doc.text((edu.desde || '') + (edu.hasta ? '  —  ' + edu.hasta : ''), cx, cy + 8.5);
+      cy += 18;
+    });
+  }
+
+  doc.save((d.nombre || 'CV') + '_' + (d.apellido || '') + '_Visual.pdf');
+}
+
+// DESCARGAR CV ATS (TXT)
+function descargarATS() {
+  const d = datosCV;
+  let txt = '';
+  txt += ((d.nombre || '') + ' ' + (d.apellido || '')).toUpperCase() + '\n';
+  txt += (d.profesion || '') + '\n\n';
+  if (d.email) txt += 'Email: ' + d.email + '\n';
+  if (d.telefono) txt += 'Telefono: ' + d.telefono + '\n';
+  if (d.ciudad) txt += 'Ubicacion: ' + d.ciudad + '\n';
+  if (d.linkedin) txt += 'LinkedIn: ' + d.linkedin + '\n';
+  if (d.web) txt += 'Web: ' + d.web + '\n';
+  txt += '\n';
+  if (d.perfil) { txt += '--- PERFIL PROFESIONAL ---\n\n' + d.perfil + '\n\n'; }
+  if (d.experiencias.length > 0) {
+    txt += '--- EXPERIENCIA LABORAL ---\n\n';
+    d.experiencias.forEach(exp => {
+      txt += (exp.cargo || '') + ' | ' + (exp.empresa || '') + '\n';
+      txt += (exp.desde || '') + ' - ' + (exp.hasta || '') + '\n';
+      if (exp.desc) txt += exp.desc + '\n';
+      txt += '\n';
+    });
+  }
+  if (d.educacion.length > 0) {
+    txt += '--- EDUCACION Y FORMACION ---\n\n';
+    d.educacion.forEach(edu => {
+      txt += (edu.titulo || '') + ' | ' + (edu.inst || '') + '\n';
+      txt += (edu.desde || '') + ' - ' + (edu.hasta || '') + '\n\n';
+    });
+  }
+  if (d.skills.length > 0) { txt += '--- HABILIDADES ---\n\n' + d.skills.join(' | ') + '\n\n'; }
+  if (d.idiomas.length > 0) {
+    txt += '--- IDIOMAS ---\n\n';
+    d.idiomas.forEach(idm => { txt += (idm.nombre || '') + ': ' + (idm.nivel || '') + '\n'; });
+  }
+
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (d.nombre || 'CV') + '_' + (d.apellido || '') + '_ATS.txt';
+  a.click();
+}
+</script>
+</body>
+</html>
