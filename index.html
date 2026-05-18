@@ -827,7 +827,7 @@ input:focus, textarea:focus, select:focus {
 </div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8R6xpI7dYTCpjw9DTjPDPCDz4VClHBjGJZnE9Am_C9gJLEq4WshsxX2nrNNyRwOw/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUg8EUoxj61i4wsWFpVUUqe1xwyeyYELutvx3OHcyTJl-xG3XMswoH2zfBcHmhh6Y/exec";
 
 const PASOS = ["Foto","Personal","Perfil","Experiencia","Educación","Habilidades","Plantilla"];
 let pasoActual = 1;
@@ -864,6 +864,37 @@ function buildProgress() {
 }
 
 // VERIFICAR CODIGO
+function llamarScript(codigo, accion) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    const url = APPS_SCRIPT_URL + '?codigo=' + encodeURIComponent(codigo) + '&accion=' + accion + '&callback=' + cbName;
+    
+    window[cbName] = function(data) {
+      delete window[cbName];
+      document.body.removeChild(script);
+      resolve(data.resultado);
+    };
+    
+    script.onerror = () => {
+      delete window[cbName];
+      document.body.removeChild(script);
+      reject(new Error('Error de red'));
+    };
+    
+    setTimeout(() => {
+      if (window[cbName]) {
+        delete window[cbName];
+        try { document.body.removeChild(script); } catch(e) {}
+        reject(new Error('Timeout'));
+      }
+    }, 10000);
+    
+    script.src = url;
+    document.body.appendChild(script);
+  });
+}
+
 async function verificarCodigo() {
   const codigo = document.getElementById('code-input').value.trim().toUpperCase();
   if (!codigo) return;
@@ -879,14 +910,10 @@ async function verificarCodigo() {
   input.classList.remove('error');
 
   try {
-    const url = APPS_SCRIPT_URL + '?codigo=' + encodeURIComponent(codigo) + '&accion=verificar';
-    const resp = await fetch(url);
-    const data = await resp.json();
-
-    if (data.resultado === 'OK') {
-      // Marcar como usado
-      const urlMarcar = APPS_SCRIPT_URL + '?codigo=' + encodeURIComponent(codigo) + '&accion=marcar';
-      await fetch(urlMarcar);
+    const result = await llamarScript(codigo, 'verificar');
+    
+    if (result === 'OK') {
+      await llamarScript(codigo, 'marcar');
       codigoUsado = codigo;
       iniciarApp();
     } else {
